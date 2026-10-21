@@ -79,12 +79,18 @@
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-    <!-- Menu -->
-    <nav class="flex gap-2 bg-white rounded-2xl border border-slate-200 p-1.5 w-fit">
-      <button id="tab-btn-cars" type="button" class="px-5 py-2.5 rounded-xl text-sm font-bold transition"><i class="fa-solid fa-car"></i> Data Mobil</button>
-      <button id="tab-btn-stats" type="button" class="px-5 py-2.5 rounded-xl text-sm font-bold transition"><i class="fa-solid fa-chart-column"></i> Statistik</button>
-    </nav>
+  <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row gap-6 md:items-start">
+
+    <!-- Menu samping (kiri) -->
+    <aside class="w-full md:w-60 shrink-0 md:sticky md:top-24">
+      <nav class="bg-white rounded-2xl border border-slate-200 p-2 flex md:flex-col gap-1 overflow-x-auto">
+        <p class="hidden md:block lbl px-3 pt-2 pb-1">Menu</p>
+        <button id="tab-btn-cars" type="button"><i class="fa-solid fa-car w-5 text-center"></i> Data Mobil</button>
+        <button id="tab-btn-stats" type="button"><i class="fa-solid fa-chart-column w-5 text-center"></i> Statistik</button>
+      </nav>
+    </aside>
+
+    <main class="flex-1 min-w-0 w-full space-y-6">
 
     <div id="tab-cars" class="space-y-6">
     <!-- Statistik -->
@@ -197,7 +203,8 @@
         <div id="st-todo" class="grid sm:grid-cols-2 gap-6"></div>
       </div>
     </div>
-  </main>
+    </main>
+  </div>
 </section>
 
 <!-- ================= MODAL FORM ================= -->
@@ -460,9 +467,10 @@
     const isCars = tab === 'cars';
     $('tab-cars').classList.toggle('hidden', !isCars);
     $('tab-stats').classList.toggle('hidden', isCars);
-    const on = 'bg-sky-600 text-white shadow', off = 'text-slate-500 hover:bg-slate-100';
-    $('tab-btn-cars').className = 'px-5 py-2.5 rounded-xl text-sm font-bold transition ' + (isCars ? on : off);
-    $('tab-btn-stats').className = 'px-5 py-2.5 rounded-xl text-sm font-bold transition ' + (!isCars ? on : off);
+    const on = 'bg-sky-600 text-white shadow', off = 'text-slate-600 hover:bg-slate-100';
+    const base = 'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition text-left whitespace-nowrap shrink-0 md:w-full ';
+    $('tab-btn-cars').className = base + (isCars ? on : off);
+    $('tab-btn-stats').className = base + (!isCars ? on : off);
     if (!isCars) { renderStats(); loadEventStats(); }
     window.scrollTo({ top: 0 });
   }
