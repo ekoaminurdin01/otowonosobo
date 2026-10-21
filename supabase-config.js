@@ -4,7 +4,7 @@
 // Letakkan di folder yang sama dengan file HTML.
 // Ambil nilainya di: Supabase > Project Settings > API
 // =====================================================
-const SUPABASE_URL  = 'https://XXXXXXXXXXXX.supabase.co';
+const SUPABASE_URL  = 'https://zewvvtbscvkcndwxieie.supabase.co';
 const SUPABASE_ANON = 'ISI_DENGAN_ANON_PUBLIC_KEY'; // pakai kunci "anon public", JANGAN service_role
 const BUCKET        = 'car-images';                 // nama bucket foto (sama dengan di SQL setup)
 
