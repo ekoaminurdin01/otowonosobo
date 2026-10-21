@@ -20,18 +20,13 @@
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen">
 
-<!-- ================= KONFIGURASI ================= -->
-<script>
-  // Ganti dengan data dari Supabase: Project Settings > API
-  const SUPABASE_URL  = 'https://zewvvtbscvkcndwxieie.supabase.co';
-  const SUPABASE_ANON = 'sb_publishable_62ho3UkL5xL4oIOwtX90CA_oXsk8qPP';
-  const BUCKET = 'car-images';
-</script>
+<!-- Konfigurasi Supabase ada di file terpisah: supabase-config.js -->
+<script src="supabase-config.js"></script>
 
 <!-- Banner jika belum dikonfigurasi -->
 <div id="cfg-warn" class="hidden bg-amber-100 border-b border-amber-300 text-amber-900 text-sm px-4 py-3 text-center">
   <i class="fa-solid fa-triangle-exclamation"></i>
-  Isi <b>SUPABASE_URL</b> dan <b>SUPABASE_ANON</b> di bagian atas file ini terlebih dahulu.
+  Isi <b>SUPABASE_URL</b> dan <b>SUPABASE_ANON</b> di file <b>supabase-config.js</b> (satu folder dengan file ini) terlebih dahulu.
 </div>
 
 <!-- ================= LOGIN ================= -->
@@ -57,6 +52,8 @@
       <button id="btn-login" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl transition">
         Masuk
       </button>
+      <a id="forgot-site" href="#" class="block text-center text-xs text-sky-600 hover:text-sky-800 font-semibold">Lupa password? Reset lewat website</a>
+      <a id="back-site" href="#" class="block text-center text-xs text-slate-500 hover:text-sky-700"><i class="fa-solid fa-arrow-left"></i> Kembali ke website</a>
     </div>
   </div>
 </section>
@@ -73,6 +70,7 @@
         </div>
       </div>
       <div class="flex items-center gap-3">
+        <a id="site-link" href="#" class="text-xs font-bold text-sky-300 hover:text-sky-200"><i class="fa-solid fa-arrow-up-right-from-square"></i> Lihat Website</a>
         <span id="user-email" class="hidden sm:inline text-xs text-slate-400"></span>
         <button id="btn-logout" class="text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-2 rounded-lg">
           <i class="fa-solid fa-right-from-bracket"></i> Keluar
@@ -82,6 +80,13 @@
   </header>
 
   <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+    <!-- Menu -->
+    <nav class="flex gap-2 bg-white rounded-2xl border border-slate-200 p-1.5 w-fit">
+      <button id="tab-btn-cars" type="button" class="px-5 py-2.5 rounded-xl text-sm font-bold transition"><i class="fa-solid fa-car"></i> Data Mobil</button>
+      <button id="tab-btn-stats" type="button" class="px-5 py-2.5 rounded-xl text-sm font-bold transition"><i class="fa-solid fa-chart-column"></i> Statistik</button>
+    </nav>
+
+    <div id="tab-cars" class="space-y-6">
     <!-- Statistik -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div class="bg-white rounded-2xl border border-slate-200 p-4"><p class="lbl">Total Unit</p><p id="st-total" class="text-2xl font-extrabold">0</p></div>
@@ -130,6 +135,67 @@
         <p class="text-sm">Belum ada data mobil.</p>
       </div>
       <div id="loading" class="text-center py-12 text-slate-400 text-sm"><i class="fa-solid fa-spinner fa-spin"></i> Memuat data...</div>
+    </div>
+    </div>
+
+    <!-- ===== STATISTIK ===== -->
+    <div id="tab-stats" class="hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-extrabold text-slate-900">Statistik Stok Mobil</h2>
+          <p class="text-xs text-slate-500">Dihitung langsung dari data di database.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <label class="lbl !mb-0" for="st-scope">Tampilkan grafik untuk</label>
+          <select id="st-scope" class="inp !w-40">
+            <option value="all">Semua unit</option>
+            <option value="tersedia">Tersedia saja</option>
+            <option value="terjual">Terjual saja</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="kpi" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+      <div class="grid lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5">
+          <h3 class="font-extrabold text-sm mb-4">Status Stok</h3>
+          <div id="st-donut"></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 lg:col-span-2">
+          <h3 class="font-extrabold text-sm mb-4">Unit Masuk per Bulan <span class="text-slate-400 font-medium">(6 bulan terakhir)</span></h3>
+          <div id="st-months"></div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-2xl border border-slate-200 p-5"><h3 class="font-extrabold text-sm mb-4">Per Merek</h3><div id="st-brand"></div></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5"><h3 class="font-extrabold text-sm mb-4">Per Tipe Bodi</h3><div id="st-body"></div></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5"><h3 class="font-extrabold text-sm mb-4">Rentang Harga</h3><div id="st-price"></div></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5"><h3 class="font-extrabold text-sm mb-4">Per Tahun Pembuatan</h3><div id="st-year"></div></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5"><h3 class="font-extrabold text-sm mb-4">Transmisi</h3><div id="st-trans"></div></div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-5"><h3 class="font-extrabold text-sm mb-4">Bahan Bakar</h3><div id="st-fuel"></div></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div>
+            <h3 class="font-extrabold text-sm">Aktivitas Pengunjung Website</h3>
+            <p class="text-xs text-slate-400">Mobil yang dibuka detailnya dan klik tombol WhatsApp. Kunjungan admin tidak dihitung.</p>
+          </div>
+          <select id="ev-days" class="inp !w-44">
+            <option value="7">7 hari terakhir</option>
+            <option value="30" selected>30 hari terakhir</option>
+            <option value="90">90 hari terakhir</option>
+          </select>
+        </div>
+        <div id="ev-body"><p class="text-sm text-slate-400">Memuat...</p></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-5">
+        <h3 class="font-extrabold text-sm mb-4">Perlu Dilengkapi</h3>
+        <div id="st-todo" class="grid sm:grid-cols-2 gap-6"></div>
+      </div>
     </div>
   </main>
 </section>
@@ -246,7 +312,9 @@
   const idr = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
 
   // ---------- Init Supabase ----------
-  const configured = !SUPABASE_URL.includes('XXXXXXXX') && !SUPABASE_ANON.startsWith('ISI_');
+  const hasCfg = typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON !== 'undefined';
+  const BUCKET_NAME = (typeof BUCKET !== 'undefined') ? BUCKET : 'car-images';
+  const configured = hasCfg && !SUPABASE_URL.includes('XXXXXXXX') && !SUPABASE_ANON.startsWith('ISI_');
   if (!configured) { $('cfg-warn').classList.remove('hidden'); }
   const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
 
@@ -289,18 +357,41 @@
   $('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
   $('btn-logout').addEventListener('click', async () => { await sb.auth.signOut(); });
 
+  const siteUrl = (typeof SITE_URL !== 'undefined' && SITE_URL) ? SITE_URL : 'oto_mobil_wonosobo_supabase.html';
+  $('site-link').href = siteUrl;
+  $('back-site').href = siteUrl;
+  $('forgot-site').href = siteUrl;
+
+  async function isAdminUser(uid) {
+    try {
+      const { data, error } = await sb.from('admins').select('user_id').eq('user_id', uid).maybeSingle();
+      if (error) return { ok: false, msg: 'Gagal memeriksa akses admin. Pastikan supabase_setup.sql versi terbaru sudah dijalankan.' };
+      return data ? { ok: true } : { ok: false, msg: 'Akun ini bukan admin. Gunakan akun admin atau kembali ke website.' };
+    } catch (e) { return { ok: false, msg: 'Gagal memeriksa akses admin.' }; }
+  }
+
+  let activeUid = null;
   async function onSession(session) {
-    if (session) {
-      $('user-email').textContent = session.user.email;
-      show('app');
-      loadCars();
-    } else {
+    if (!session) { activeUid = null; show('login'); return; }
+    if (activeUid === session.user.id) return; // sudah diverifikasi
+    const res = await isAdminUser(session.user.id);
+    if (!res.ok) {
+      activeUid = null;
       show('login');
+      const err = $('login-err');
+      err.textContent = res.msg;
+      err.classList.remove('hidden');
+      return;
     }
+    activeUid = session.user.id;
+    $('user-email').textContent = session.user.email;
+    show('app');
+    loadCars();
   }
   if (sb) {
     sb.auth.getSession().then(({ data }) => onSession(data.session));
-    sb.auth.onAuthStateChange((_evt, session) => onSession(session));
+    // jangan await query di dalam callback ini (hindari deadlock)
+    sb.auth.onAuthStateChange((_evt, session) => { setTimeout(() => onSession(session), 0); });
   } else {
     show('login');
   }
@@ -313,6 +404,7 @@
     if (error) { toast('Gagal memuat data: ' + error.message, false); return; }
     cars = data || [];
     render();
+    renderStats();
   }
 
   function render() {
@@ -363,6 +455,183 @@
       </tr>`).join('');
   }
 
+  // ---------- Menu / Tab ----------
+  function setTab(tab) {
+    const isCars = tab === 'cars';
+    $('tab-cars').classList.toggle('hidden', !isCars);
+    $('tab-stats').classList.toggle('hidden', isCars);
+    const on = 'bg-sky-600 text-white shadow', off = 'text-slate-500 hover:bg-slate-100';
+    $('tab-btn-cars').className = 'px-5 py-2.5 rounded-xl text-sm font-bold transition ' + (isCars ? on : off);
+    $('tab-btn-stats').className = 'px-5 py-2.5 rounded-xl text-sm font-bold transition ' + (!isCars ? on : off);
+    if (!isCars) { renderStats(); loadEventStats(); }
+    window.scrollTo({ top: 0 });
+  }
+  $('tab-btn-cars').addEventListener('click', () => setTab('cars'));
+  $('tab-btn-stats').addEventListener('click', () => setTab('stats'));
+  $('st-scope').addEventListener('change', renderStats);
+  $('ev-days').addEventListener('change', loadEventStats);
+  setTab('cars');
+
+  // ---------- Statistik ----------
+  function idrShort(n) {
+    n = Number(n) || 0;
+    if (n >= 1e9) return 'Rp ' + (n / 1e9).toLocaleString('id-ID', { maximumFractionDigits: 2 }) + ' M';
+    if (n >= 1e6) return 'Rp ' + (n / 1e6).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' jt';
+    return idr(n);
+  }
+  function groupBy(list, fn, sortKeyDesc) {
+    const m = new Map();
+    list.forEach(c => { const k = fn(c) || '-'; m.set(k, (m.get(k) || 0) + 1); });
+    const arr = [...m.entries()];
+    return sortKeyDesc ? arr.sort((a, b) => String(b[0]).localeCompare(String(a[0]), 'id', { numeric: true })) : arr.sort((a, b) => b[1] - a[1]);
+  }
+  function bars(entries, color) {
+    if (!entries.length) return '<p class="text-sm text-slate-400">Belum ada data.</p>';
+    const max = Math.max(...entries.map(e => e[1]));
+    return entries.map(([k, v]) => `
+      <div class="mb-3">
+        <div class="flex justify-between text-xs mb-1"><span class="font-semibold text-slate-700 truncate pr-2">${esc(k)}</span><span class="font-bold text-slate-900">${v}</span></div>
+        <div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full ${color} rounded-full" style="width:${Math.max(4, v / max * 100)}%"></div></div>
+      </div>`).join('');
+  }
+  function nameList(arr) {
+    if (!arr.length) return '<p class="text-sm text-emerald-600 font-semibold"><i class="fa-solid fa-circle-check"></i> Semua sudah lengkap.</p>';
+    const shown = arr.slice(0, 5).map(c => `<li class="truncate">&bull; ${esc(c.title)}</li>`).join('');
+    const more = arr.length > 5 ? `<li class="text-slate-400">dan ${arr.length - 5} lainnya</li>` : '';
+    return `<ul class="text-sm text-slate-600 space-y-1">${shown}${more}</ul>`;
+  }
+
+  async function loadEventStats() {
+    const box = $('ev-body');
+    box.innerHTML = '<p class="text-sm text-slate-400"><i class="fa-solid fa-spinner fa-spin"></i> Memuat...</p>';
+    const days = Number($('ev-days').value) || 30;
+    const { data, error } = await sb.rpc('get_event_stats', { p_days: days });
+    if (error || !data) {
+      box.innerHTML = '<p class="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2"><i class="fa-solid fa-triangle-exclamation"></i> Statistik pengunjung belum aktif. Jalankan <b>supabase_setup.sql</b> versi terbaru di SQL Editor Supabase.</p>';
+      return;
+    }
+    const views = Number(data.views) || 0, wa = Number(data.whatsapp) || 0, visitors = Number(data.visitors) || 0;
+    const ratio = views ? (wa / views * 100).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + '%' : '-';
+    const kp = [['Mobil Dilihat', views, 'text-sky-700'], ['Pengunjung Unik', visitors, 'text-slate-900'], ['Klik WhatsApp', wa, 'text-emerald-600'], ['Rasio WA / Dilihat', ratio, 'text-amber-600']];
+
+    const top = Array.isArray(data.top) ? data.top : [];
+    const tmax = Math.max(1, ...top.map(t => Number(t.views) || 0));
+    const topHtml = top.length ? top.map((t, i) => `
+      <div class="mb-3">
+        <div class="flex justify-between text-xs mb-1 gap-2">
+          <span class="font-semibold text-slate-700 truncate"><span class="text-slate-400">${i + 1}.</span> ${esc(t.title)}</span>
+          <span class="shrink-0 text-slate-500"><b class="text-slate-900">${t.views}</b> dilihat &middot; <b class="text-emerald-600">${t.whatsapp}</b> WA</span>
+        </div>
+        <div class="h-2 bg-slate-100 rounded-full overflow-hidden"><div class="h-full bg-sky-500 rounded-full" style="width:${Math.max(4, (Number(t.views) || 0) / tmax * 100)}%"></div></div>
+      </div>`).join('') : '<p class="text-sm text-slate-400">Belum ada data kunjungan pada periode ini.</p>';
+
+    // 14 hari terakhir (zona waktu WIB)
+    const tz = 'Asia/Jakarta';
+    const byDay = {};
+    (Array.isArray(data.daily) ? data.daily : []).forEach(d => { byDay[d.day] = Number(d.views) || 0; });
+    const dayList = [];
+    for (let i = 13; i >= 0; i--) {
+      const dt = new Date(Date.now() - i * 86400000);
+      const key = dt.toLocaleDateString('sv-SE', { timeZone: tz });
+      dayList.push({ n: byDay[key] || 0, label: dt.toLocaleDateString('id-ID', { day: 'numeric', timeZone: tz }) });
+    }
+    const dmax = Math.max(1, ...dayList.map(d => d.n));
+    const dailyHtml = `<div class="flex items-end gap-1.5 h-40">${dayList.map(d => `
+      <div class="flex-1 flex flex-col items-center justify-end">
+        <span class="text-[10px] font-bold mb-1 ${d.n ? '' : 'text-slate-300'}">${d.n}</span>
+        <div class="w-full rounded-t ${d.n ? 'bg-sky-500' : 'bg-slate-200'}" style="height:${d.n ? Math.round(d.n / dmax * 90) : 3}px"></div>
+        <span class="text-[10px] text-slate-500 mt-1.5">${d.label}</span>
+      </div>`).join('')}</div>`;
+
+    box.innerHTML = `
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">${kp.map(([l, v, c]) => `
+        <div class="bg-slate-50 rounded-xl p-4"><p class="lbl">${l}</p><p class="text-xl font-extrabold ${c}">${esc(v)}</p></div>`).join('')}</div>
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div><p class="text-sm font-bold mb-3">5 Mobil Paling Banyak Dilihat</p>${topHtml}</div>
+        <div><p class="text-sm font-bold mb-3">Dilihat per Hari <span class="text-slate-400 font-medium">(14 hari terakhir)</span></p>${dailyHtml}</div>
+      </div>`;
+  }
+
+  function renderStats() {
+    const avail = cars.filter(c => c.status === 'tersedia');
+    const sold = cars.filter(c => c.status === 'terjual');
+    const sum = a => a.reduce((t, c) => t + (Number(c.price) || 0), 0);
+    const prices = avail.map(c => Number(c.price) || 0);
+    const rate = cars.length ? Math.round(sold.length / cars.length * 100) : 0;
+
+    const kpis = [
+      ['Nilai Stok Tersedia', idrShort(sum(avail)), 'text-sky-700'],
+      ['Rata-rata Harga', avail.length ? idrShort(sum(avail) / avail.length) : '-', 'text-slate-900'],
+      ['Termurah (tersedia)', prices.length ? idrShort(Math.min(...prices)) : '-', 'text-emerald-600'],
+      ['Termahal (tersedia)', prices.length ? idrShort(Math.max(...prices)) : '-', 'text-amber-600'],
+      ['Unit Terjual', String(sold.length), 'text-slate-900'],
+      ['Nilai Terjual', idrShort(sum(sold)), 'text-slate-900'],
+      ['Tingkat Terjual', rate + '%', 'text-sky-700'],
+      ['Unggulan Aktif', String(avail.filter(c => c.is_featured).length), 'text-amber-500']
+    ];
+    $('kpi').innerHTML = kpis.map(([l, v, c]) => `
+      <div class="bg-white rounded-2xl border border-slate-200 p-4"><p class="lbl">${l}</p><p class="text-xl font-extrabold ${c} break-words">${esc(v)}</p></div>`).join('');
+
+    // Donut status
+    const total = cars.length;
+    const pa = total ? Math.round(avail.length / total * 100) : 0;
+    const bg = total ? `conic-gradient(#10b981 0 ${pa}%, #94a3b8 ${pa}% 100%)` : '#e2e8f0';
+    $('st-donut').innerHTML = `
+      <div class="flex items-center gap-5">
+        <div class="w-28 h-28 rounded-full relative shrink-0" style="background:${bg}">
+          <div class="absolute inset-3 bg-white rounded-full flex flex-col items-center justify-center">
+            <span class="text-xl font-extrabold">${total}</span><span class="text-[10px] text-slate-400">unit</span>
+          </div>
+        </div>
+        <ul class="text-sm space-y-2">
+          <li><span class="inline-block w-3 h-3 rounded-full bg-emerald-500 mr-2"></span>Tersedia <b>${avail.length}</b></li>
+          <li><span class="inline-block w-3 h-3 rounded-full bg-slate-400 mr-2"></span>Terjual <b>${sold.length}</b></li>
+        </ul>
+      </div>`;
+
+    // Unit masuk per bulan (6 bulan terakhir)
+    const now = new Date();
+    const months = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push({ key: d.getFullYear() + '-' + d.getMonth(), label: d.toLocaleDateString('id-ID', { month: 'short' }), n: 0 });
+    }
+    cars.forEach(c => {
+      const d = new Date(c.created_at);
+      const m = months.find(x => x.key === d.getFullYear() + '-' + d.getMonth());
+      if (m) m.n++;
+    });
+    const mmax = Math.max(1, ...months.map(m => m.n));
+    $('st-months').innerHTML = `<div class="flex items-end gap-3 h-44">${months.map(m => `
+      <div class="flex-1 flex flex-col items-center justify-end">
+        <span class="text-xs font-bold mb-1">${m.n}</span>
+        <div class="w-full rounded-t-lg ${m.n ? 'bg-sky-500' : 'bg-slate-200'}" style="height:${m.n ? Math.round(m.n / mmax * 110) : 3}px"></div>
+        <span class="text-[11px] text-slate-500 mt-2">${m.label}</span>
+      </div>`).join('')}</div>`;
+
+    // Grafik distribusi sesuai pilihan
+    const scope = $('st-scope').value;
+    const list = scope === 'all' ? cars : cars.filter(c => c.status === scope);
+    $('st-brand').innerHTML = bars(groupBy(list, c => c.brand), 'bg-sky-500');
+    $('st-body').innerHTML  = bars(groupBy(list, c => c.body), 'bg-indigo-500');
+    $('st-trans').innerHTML = bars(groupBy(list, c => c.transmission), 'bg-emerald-500');
+    $('st-fuel').innerHTML  = bars(groupBy(list, c => c.fuel), 'bg-amber-500');
+    $('st-year').innerHTML  = bars(groupBy(list, c => String(c.year), true), 'bg-rose-500');
+    const buckets = [
+      ['Di bawah Rp 100 jt', p => p < 1e8], ['Rp 100 - 200 jt', p => p >= 1e8 && p < 2e8],
+      ['Rp 200 - 300 jt', p => p >= 2e8 && p < 3e8], ['Rp 300 - 500 jt', p => p >= 3e8 && p < 5e8],
+      ['Di atas Rp 500 jt', p => p >= 5e8]
+    ];
+    $('st-price').innerHTML = bars(buckets.map(([l, t]) => [l, list.filter(c => t(Number(c.price) || 0)).length]), 'bg-teal-500');
+
+    // Perlu dilengkapi
+    const noPhoto = cars.filter(c => !(c.images && c.images.length) && !c.image);
+    const noDesc = cars.filter(c => !c.description || !c.description.trim());
+    $('st-todo').innerHTML = `
+      <div><p class="text-sm font-bold mb-2">Belum ada foto <span class="text-slate-400">(${noPhoto.length})</span></p>${nameList(noPhoto)}</div>
+      <div><p class="text-sm font-bold mb-2">Belum ada deskripsi <span class="text-slate-400">(${noDesc.length})</span></p>${nameList(noDesc)}</div>`;
+  }
+
   $('search').addEventListener('input', render);
   $('filter-status').addEventListener('change', render);
 
@@ -395,14 +664,14 @@
   // ---------- Storage helpers ----------
   function storagePathFromUrl(url) {
     if (!url) return null;
-    const marker = '/storage/v1/object/public/' + BUCKET + '/';
+    const marker = '/storage/v1/object/public/' + BUCKET_NAME + '/';
     const i = url.indexOf(marker);
     return i === -1 ? null : decodeURIComponent(url.slice(i + marker.length));
   }
   async function removeStorageFile(urlOrPath, isPath = false) {
     const path = isPath ? urlOrPath : storagePathFromUrl(urlOrPath);
     if (!path) return;
-    await sb.storage.from(BUCKET).remove([path]);
+    await sb.storage.from(BUCKET_NAME).remove([path]);
   }
 
   function resizeImage(file, maxSide = 1280, quality = 0.82) {
@@ -471,10 +740,10 @@
         const blob = await resizeImage(file);
         const name = file.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40) || 'mobil';
         const path = `${Date.now()}-${k}-${name}.jpg`;
-        const { error } = await sb.storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
+        const { error } = await sb.storage.from(BUCKET_NAME).upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
         if (error) throw error;
         newPaths.push(path);
-        photos.push(sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl);
+        photos.push(sb.storage.from(BUCKET_NAME).getPublicUrl(path).data.publicUrl);
         ok++;
         renderGallery();
       } catch (err) { fail++; }
