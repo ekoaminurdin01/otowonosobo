@@ -751,11 +751,9 @@
     </footer>
 
     <!-- Car Detail Modal -->
-    <div id="detail-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative my-8">
-            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold p-1">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+    <div id="detail-modal" onclick="if(event.target===this)closeDetailModal()" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-start justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative my-auto">
+            <div class="sticky top-2 z-30 h-0 flex justify-end"><button type="button" onclick="closeDetailModal()" aria-label="Tutup" title="Tutup" class="w-10 h-10 rounded-full bg-white text-slate-700 hover:bg-red-50 hover:text-red-600 shadow-lg border border-slate-200 flex items-center justify-center text-lg transition"><i class="fa-solid fa-xmark"></i></button></div>
             <div id="modal-content">
                 <!-- Content Injected via JS -->
             </div>
@@ -808,11 +806,9 @@
     </div>
 
     <!-- Apply Credit / Contact Modal -->
-    <div id="apply-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
-            <button onclick="closeApplyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold p-1">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+    <div id="apply-modal" onclick="if(event.target===this)closeApplyModal()" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-start justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative my-auto">
+            <div class="sticky top-2 z-30 h-0 flex justify-end"><button type="button" onclick="closeApplyModal()" aria-label="Tutup" title="Tutup" class="w-10 h-10 rounded-full bg-white text-slate-700 hover:bg-red-50 hover:text-red-600 shadow-lg border border-slate-200 flex items-center justify-center text-lg transition"><i class="fa-solid fa-xmark"></i></button></div>
             <h3 class="text-xl font-bold text-slate-900 mb-2">Formulir Pengajuan Kredit</h3>
             <p class="text-xs text-slate-500 mb-4">Isi data singkat berikut, Tim Sales kami akan segera menghubungi Anda untuk proses selanjutnya.</p>
 
